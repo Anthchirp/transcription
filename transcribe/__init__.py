@@ -77,19 +77,22 @@ def main():
   mechs = []
 
   if options.language == 'en':
-    mechs.append(('sphinx', transcribe_sphinx(options)))
+    mechs.append(transcribe_sphinx(options))
     options.language = 'en-US'
   elif options.language == 'de':
     options.language = 'de-DE'
   if options.bing:
-    mechs.append(('bing', transcribe_bing(options)))
+    mechs.append(transcribe_bing(options))
 
   for f in args:
-    print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(m[0] for m in mechs)))
+    print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(mechs)))
     basename = os.path.splitext(f)[0]
     transcribe(f, basename, mechs=mechs)
 
 class transcribe_sphinx():
+  def __repr__(self):
+    return "Sphinx"
+
   def __init__(self, options):
     self.recognizer = sr.Recognizer()
     self.language = options.language
@@ -121,6 +124,9 @@ class transcribe_sphinx():
       self.output_file = None
 
 class transcribe_bing():
+  def __repr__(self):
+    return "Microsoft Bing"
+
   def __init__(self, options):
     self.recognizer = sr.Recognizer()
     self.language = options.language
