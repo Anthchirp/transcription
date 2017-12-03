@@ -5,13 +5,14 @@ from __future__ import absolute_import, division, print_function
 
 from optparse import SUPPRESS_HELP, OptionParser
 import os
+import string
 import sys
 import time
 import wave
 
 import speech_recognition as sr
 
-def transcribe(filename, basename, mechs=None):
+def transcribe(filename, basename, mechs=None, seconds=11):
   if not mechs:
     print("No transcription mechanisms specified, skipping")
     return
@@ -24,8 +25,8 @@ def transcribe(filename, basename, mechs=None):
     w = wave.open(filename, 'r')
     start_frame = 0
     length = w.getnframes()
-    block_size = w.getframerate() * 11 # seconds
-    overlap = w.getframerate()    *  1 # seconds
+    block_size = w.getframerate() * seconds # 11 seconds (default) recognition snippets
+    overlap = w.getframerate()    *  1      #  1 second overlap between blocks
     lastframeend = start_frame
 
     for m in mechs:
@@ -73,7 +74,10 @@ def main():
       help="Bing API key. Register at https://www.microsoft.com/cognitive-services/en-us/subscriptions for 'Bing speech'.")
   parser.add_option("-l", "--language", dest="language", metavar="LANG",
       action="store", type="choice", default='en-US', choices=['en-US', 'de-DE'],
-      help="Language of audio file (supported: en=english (default), de=german)")
+      help="Language of audio file (supported: en-US=english (default), de-DE=german)")
+  parser.add_option("-s", "--snip", dest="blocksize",
+      action="store", type="int", default=11,
+      help="Snippet length in seconds for transcription (default: 11. Bing limit: <15)")
   options, args = parser.parse_args()
 
   if not args:
@@ -91,10 +95,13 @@ def main():
     # Sphinx can only do en-US
     pass
 
-  for f in args:
-    print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(map(repr, mechs))))
-    basename = os.path.splitext(f)[0]
-    transcribe(f, basename, mechs=mechs)
+  try:
+    for f in args:
+      print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(map(repr, mechs))))
+      basename = os.path.splitext(f)[0]
+      transcribe(f, basename, mechs=mechs, seconds=options.blocksize)
+  except KeyboardInterrupt:
+    print("\nStopped by user.")
 
 class transcribe_sphinx():
   def __repr__(self):
@@ -140,6 +147,7 @@ class transcribe_bing():
     self.language = options.language
     self.api_key = options.bing
     self.output_file = None
+    self.raw_file = None
     self.debug_file = None
     self.last_request = 0
     self.rate_limit = 3.1 # minimum number of seconds between requests
@@ -147,10 +155,13 @@ class transcribe_bing():
   def start(self, basename):
     self.done()
     outname = basename + '_bing.txt'
+    rawname = basename + '_bing_raw.txt'
     debname = basename + '_bing_debug.txt'
     self.output_file = open(outname, 'w')
+    self.raw_file = open(rawname, 'w')
     self.debug_file = open(debname, 'w')
     print("Writing bing transcription to {}".format(outname))
+    print("Writing bing transcription without punctuation to {}".format(rawname))
     print("Writing bing debug information to {}".format(debname))
 
   def recognize(self, tempfile, timecode):
@@ -166,9 +177,10 @@ class transcribe_bing():
       self.debug_file.write("%s %s\n" % (timecode, recognized))
       if recognized.get('RecognitionStatus') == 'Success':
         self.output_file.write(timecode + recognized.get('DisplayText').encode("UTF-8") + "\n")
+        self.raw_file.write(timecode + recognized.get('DisplayText').translate(None, string.punctuation).encode("UTF-8") + "\n")
         print("Bing thinks you said: %s" % recognized.get('DisplayText'))
       else:
-        print("Microsoft Bing Voice Recognition could not understand audio")
+        print("Bing did not recognize this")
     except sr.UnknownValueError:
       print("Microsoft Bing Voice Recognition could not understand audio")
     except sr.RequestError as e:
@@ -179,6 +191,9 @@ class transcribe_bing():
     if self.output_file:
       self.output_file.close()
       self.output_file = None
+    if self.raw_file:
+      self.raw_file.close()
+      self.raw_file = None
     if self.debug_file:
       self.debug_file.close()
       self.debug_file = None
