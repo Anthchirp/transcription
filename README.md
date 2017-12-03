@@ -6,7 +6,7 @@ Python 2
 --------
 Install with:
 
-  pip install --upgrade git+git://github.com/Anthchirp/transcription.git
+  pip install --upgrade https://github.com/Anthchirp/transcription/archive/master.zip
 
 Run with:
 
@@ -16,7 +16,7 @@ Python 3
 --------
 Install with:
 
-  pip3 install --upgrade git+git://github.com/Anthchirp/transcription.git
+  pip3 install --upgrade https://github.com/Anthchirp/transcription/archive/master.zip
 
 Run with:
 

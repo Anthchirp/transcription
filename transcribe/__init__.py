@@ -87,8 +87,7 @@ def main():
   for f in args:
     print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(m[0] for m in mechs)))
     basename = os.path.splitext(f)[0]
-    transcribe(f, base=basename, mechs=mechs,
-               language=options.language)
+    transcribe(f, basename, mechs=mechs)
 
 class transcribe_sphinx():
   def __init__(self, options):
