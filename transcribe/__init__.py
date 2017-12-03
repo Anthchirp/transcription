@@ -5,9 +5,11 @@ from __future__ import absolute_import, division, print_function
 
 from optparse import SUPPRESS_HELP, OptionParser
 import os
-import speech_recognition as sr
+import sys
 import time
 import wave
+
+import speech_recognition as sr
 
 def transcribe(filename, basename, mechs=None):
   if not mechs:
@@ -74,15 +76,20 @@ def main():
       help="Language of audio file (supported: en=english (default), de=german)")
   options, args = parser.parse_args()
 
+  if not args:
+    parser.print_help()
+    sys.exit(0)
+
   mechs = []
 
-  if options.language == 'en-US':
+  if options.bing:
+    mechs.append(transcribe_bing(options))
+  elif options.language == 'en-US':
+    # Only run Sphinx if bing is not selected
     mechs.append(transcribe_sphinx(options))
   elif options.language == 'de-DE':
     # Sphinx can only do en-US
     pass
-  if options.bing:
-    mechs.append(transcribe_bing(options))
 
   for f in args:
     print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(map(repr, mechs))))
@@ -110,7 +117,7 @@ class transcribe_sphinx():
     # recognize speech using Sphinx
     try:
       recognized = self.recognizer.recognize_sphinx(audio, language=self.language)
-      self.output_file.write("\n" + timecode)
+      self.output_file.write(timecode)
       self.output_file.write(recognized.encode("UTF-8") + "\n")
       if recognized:
         print("Sphinx thinks you said:", recognized)
@@ -156,8 +163,7 @@ class transcribe_bing():
     self.last_request = time.time()
     try:
       recognized = self.recognizer.recognize_bing(audio, language=self.language, key=self.api_key, show_all=True)
-      self.debug_file.write("\n" + timecode)
-      self.debug_file.write(recognized)
+      self.debug_file.write("%s %s\n" % (timecode, recognized))
       from pprint import pprint
       pprint(recognized)
       for entry in recognized.get('results', []):
