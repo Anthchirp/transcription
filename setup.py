@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name="transcribe",
-  version="0.2.2",
+  version="0.2.3",
   install_requires=[
     'speechrecognition',
 #   'deepspeech',

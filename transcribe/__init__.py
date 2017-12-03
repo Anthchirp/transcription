@@ -96,6 +96,7 @@ class transcribe_sphinx():
   def __init__(self, options):
     self.recognizer = sr.Recognizer()
     self.language = options.language
+    self.output_file = None
 
   def start(self, basename):
     self.done()
@@ -131,6 +132,8 @@ class transcribe_bing():
     self.recognizer = sr.Recognizer()
     self.language = options.language
     self.api_key = options.bing
+    self.output_file = None
+    self.debug_file = None
     self.last_request = 0
     self.rate_limit = 3.1 # minimum number of seconds between requests
 
