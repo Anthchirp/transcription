@@ -85,7 +85,7 @@ def main():
     mechs.append(transcribe_bing(options))
 
   for f in args:
-    print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(mechs)))
+    print("Transcribing file {filename} with language {language} using mechs {mechs}".format(filename=f, language=options.language, mechs=", ".join(map(repr, mechs))))
     basename = os.path.splitext(f)[0]
     transcribe(f, basename, mechs=mechs)
 
