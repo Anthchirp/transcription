@@ -116,7 +116,7 @@ class transcribe_sphinx():
     self.done()
     outname = basename + '_sphinx.txt'
     self.output_file = open(outname, 'w')
-    print("Writing sphinx transcription to {}".format(outname))
+    print("Writing sphinx transcription to {0}".format(outname))
 
   def recognize(self, tempfile, timecode):
     with sr.AudioFile(tempfile) as source:
@@ -134,7 +134,7 @@ class transcribe_sphinx():
     except sr.UnknownValueError:
       print("Sphinx could not understand audio")
     except sr.RequestError as e:
-      print("Sphinx error; {0}".format(e))
+      print("Sphinx error: {0}".format(e))
 
   def done(self):
     if self.output_file:
@@ -193,8 +193,11 @@ class transcribe_bing():
     except sr.UnknownValueError:
       print("Microsoft Bing Voice Recognition could not understand audio")
     except sr.RequestError as e:
-      print("Could not request results from Microsoft Bing Voice Recognition service; {0}".format(e))
-      self.debug_file.write(e)
+      print("Could not request results from Microsoft Bing Voice Recognition service: {0}".format(e))
+      error_line = "%s RequestError: %s\n" % (timecode, e.reason)
+      self.debug_file.write(error_line)
+      self.output_file.write(error_line)
+      self.raw_file.write(error_line)
 
   def done(self):
     if self.output_file:
