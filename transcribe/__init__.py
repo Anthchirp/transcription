@@ -127,7 +127,10 @@ class transcribe_sphinx():
       self.output_file.write(timecode)
       self.output_file.write(recognized.encode("UTF-8", 'replace') + "\n")
       if recognized:
-        print("Sphinx thinks you said:", recognized)
+        try:
+          print("Sphinx thinks you said:", recognized)
+        except UnicodeEncodeError:
+          print("Sphinx found results with a special character (see output file)")
     except sr.UnknownValueError:
       print("Sphinx could not understand audio")
     except sr.RequestError as e:
@@ -178,7 +181,13 @@ class transcribe_bing():
       if recognized.get('RecognitionStatus') == 'Success':
         self.output_file.write(timecode + recognized.get('DisplayText').encode("UTF-8", 'xmlcharrefreplace') + "\n")
         self.raw_file.write(timecode + recognized.get('DisplayText').encode("UTF-8", 'ignore').translate(None, string.punctuation) + "\n")
-        print("Bing thinks you said: %s" % recognized.get('DisplayText'))
+        try:
+          print("Bing thinks you said: %s" % recognized.get('DisplayText'))
+        except UnicodeEncodeError:
+          try:
+            print("Bing thinks you said: %s" % recognized.get('DisplayText').encode('ascii', 'replace'))
+          except UnicodeEncodeError:
+            print("Bing found results with a special character (see output file)")
       else:
         print("Bing did not recognize this")
     except sr.UnknownValueError:
