@@ -177,7 +177,7 @@ class transcribe_bing():
       self.debug_file.write("%s %s\n" % (timecode, recognized))
       if recognized.get('RecognitionStatus') == 'Success':
         self.output_file.write(timecode + recognized.get('DisplayText').encode("UTF-8") + "\n")
-        self.raw_file.write(timecode + recognized.get('DisplayText').translate(None, string.punctuation).encode("UTF-8") + "\n")
+        self.raw_file.write(timecode + recognized.get('DisplayText').encode("UTF-8").translate(None, string.punctuation) + "\n")
         print("Bing thinks you said: %s" % recognized.get('DisplayText'))
       else:
         print("Bing did not recognize this")
