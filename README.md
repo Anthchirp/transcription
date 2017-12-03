@@ -2,11 +2,22 @@
 python script to aid in transcribing audio recordings
 
 
-Installation with
+Python 2
+--------
+Install with:
 
-  pip install git+git://github.com/Anthchirp/transcription.git
+  pip install --upgrade git+git://github.com/Anthchirp/transcription.git
 
-or
-  pip3 install git+git://github.com/Anthchirp/transcription.git
+Run with:
 
-for python3.
+  transcribe --help
+
+Python 3
+--------
+Install with:
+
+  pip3 install --upgrade git+git://github.com/Anthchirp/transcription.git
+
+Run with:
+
+  transcribe --help
