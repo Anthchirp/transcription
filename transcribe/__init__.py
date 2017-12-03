@@ -164,15 +164,11 @@ class transcribe_bing():
     try:
       recognized = self.recognizer.recognize_bing(audio, language=self.language, key=self.api_key, show_all=True)
       self.debug_file.write("%s %s\n" % (timecode, recognized))
-      from pprint import pprint
-      pprint(recognized)
-      for entry in recognized.get('results', []):
-        self.output_file.write(timecode + entry.get('lexical').encode("UTF-8") + "\n")
-      try:
-        print("Bing thinks you said:", end="")
-        print(entry.get('name'))
-      except:
-        pass
+      if recognized.get('RecognitionStatus') == 'Success':
+        self.output_file.write(timecode + recognized.get('DisplayText').encode("UTF-8") + "\n")
+        print("Bing thinks you said: %s" % recognized.get('DisplayText'))
+      else:
+        print("Microsoft Bing Voice Recognition could not understand audio")
     except sr.UnknownValueError:
       print("Microsoft Bing Voice Recognition could not understand audio")
     except sr.RequestError as e:
