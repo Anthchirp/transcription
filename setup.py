@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name="transcribe",
-  version="0.2.4",
+  version="0.2.5",
   install_requires=[
     'speechrecognition',
     'pocketsphinx',

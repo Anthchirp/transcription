@@ -70,17 +70,17 @@ def main():
       action="store", type="string", default=None,
       help="Bing API key. Register at https://www.microsoft.com/cognitive-services/en-us/subscriptions for 'Bing speech'.")
   parser.add_option("-l", "--language", dest="language", metavar="LANG",
-      action="store", type="choice", default="en", choices=['en', 'de'],
+      action="store", type="choice", default='en-US', choices=['en-US', 'de-DE'],
       help="Language of audio file (supported: en=english (default), de=german)")
   options, args = parser.parse_args()
 
   mechs = []
 
-  if options.language == 'en':
+  if options.language == 'en-US':
     mechs.append(transcribe_sphinx(options))
-    options.language = 'en-US'
-  elif options.language == 'de':
-    options.language = 'de-DE'
+  elif options.language == 'de-DE':
+    # Sphinx can only do en-US
+    pass
   if options.bing:
     mechs.append(transcribe_bing(options))
 
