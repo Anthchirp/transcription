@@ -193,8 +193,11 @@ class transcribe_bing():
     except sr.UnknownValueError:
       print("Microsoft Bing Voice Recognition could not understand audio")
     except sr.RequestError as e:
-      print("Could not request results from Microsoft Bing Voice Recognition service: {0}".format(e))
-      error_line = "%s RequestError: %s\n" % (timecode, e.reason)
+      try:
+        print("Could not request results from Microsoft Bing Voice Recognition service: {0}".format(e))
+      except Exception:
+        pass
+      error_line = "%s RequestError: %s\n" % (timecode, str(e))
       self.debug_file.write(error_line)
       self.output_file.write(error_line)
       self.raw_file.write(error_line)
